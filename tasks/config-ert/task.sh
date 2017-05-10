@@ -141,13 +141,25 @@ EOF
 
 $CMD -t https://$OPS_MGR_HOST -u $OPS_MGR_USR -p $OPS_MGR_PWD -k configure-product -n cf -p "$CF_PROPERTIES" -pn "$CF_NETWORK" -pr "$CF_RESOURCES"
 
+
+CF_AUTH_SERVICE_PROVIDER_CREDS=$(cat <<-EOF
+".uaa.service_provider_key_credentials": {
+    "value": {
+      "cert_pem": "$SSL_CERT",
+      "private_key_pem": "$SSL_PRIVATE_KEY"
+    }
+}
+EOF
+)
+
 if [[ "$AUTHENTICATION_MODE" == "internal" ]]; then
 echo "Configuring Internal Authentication in ERT..."
 CF_AUTH_PROPERTIES=$(cat <<-EOF
 {
   ".properties.uaa": {
     "value": "$AUTHENTICATION_MODE"
-  }
+  },
+  $CF_AUTH_SERVICE_PROVIDER_CREDS
 }
 EOF
 )
@@ -188,7 +200,8 @@ CF_AUTH_PROPERTIES=$(cat <<-EOF
   },
   ".properties.uaa.ldap.last_name_attribute": {
     "value": "$LAST_NAME_ATTR"
-  }
+  },
+  $CF_AUTH_SERVICE_PROVIDER_CREDS
 }
 EOF
 )
